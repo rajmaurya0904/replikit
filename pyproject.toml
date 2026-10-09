@@ -15,7 +15,7 @@ dev = [
 ]
 
 [project.scripts]
-replikit = "replikit.server:main"
+replikit = "replikit.cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]
