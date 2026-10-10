@@ -16,7 +16,28 @@ pip install replikit[dev]
 
 ## Usage
 
-TODO: fill in as the build loop lands the core feature.
+Run the RepliKit server from the command line:
+
+```bash
+replikit
+```
+
+Configure the server using environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `REPLIKIT_PG_DSN` | PostgreSQL connection string | `postgresql://postgres@localhost:5432/postgres` |
+| `REPLIKIT_HOST` | Server bind address | `0.0.0.0` |
+| `REPLIKIT_PORT` | Server port | `8000` |
+
+Example with custom configuration:
+
+```bash
+REPLIKIT_PG_DSN="postgresql://user:pass@db.example.com:5432/mydb" \
+REPLIKIT_HOST="127.0.0.1" \
+REPLIKIT_PORT=9000 \
+replikit
+```
 
 ## Example
 
