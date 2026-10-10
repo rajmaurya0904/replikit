@@ -2,10 +2,16 @@
 
 MCP server that exposes PostgreSQL logical replication changes as real-time events for AI agents to react to database updates.
 
-## Install
+## Installation
 
+Basic installation:
 ```bash
-pip install -e ".[dev]"
+pip install replikit
+```
+
+For development (includes testing and linting dependencies):
+```bash
+pip install replikit[dev]
 ```
 
 ## Usage
