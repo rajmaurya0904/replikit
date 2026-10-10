@@ -25,7 +25,8 @@ build-backend = "setuptools.build_meta"
 include = ["replikit*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = "tests"
+asyncio_mode = "auto"
 
 [tool.ruff]
 line-length = 100
