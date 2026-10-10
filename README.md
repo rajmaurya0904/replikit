@@ -65,7 +65,14 @@ The server exposes the events at the `/events` endpoint. The client connects, re
 
 ## FAQ
 
-TODO.
+**How do I create a replication slot?**
+The server automatically creates a replication slot named `replikit_slot` when it starts. If the slot already exists, it will be reused. To manually create a slot, you can use the PostgreSQL command: `SELECT pg_create_logical_replication_slot('replikit_slot', 'pgoutput');`.
+
+**What permissions does the PostgreSQL user need?**
+The user specified in `REPLIKIT_PG_DSN` must have the `REPLICATION` privilege and sufficient rights to read the tables you want to monitor. Typically, granting `REPLICATION` and `SELECT` on the relevant tables (or using a superuser) is sufficient.
+
+**What is the format of the events?**
+Events are sent as Server-Sent Events (SSE) with the `data` field containing a JSON payload. Each payload includes the change type (`INSERT`, `UPDATE`, `DELETE`), the schema, table, column names, and the old and new values (for UPDATE). Example: `{"change": "INSERT", "schema": "public", "table": "users", "column_names": ["id", "name"], "column_values": [1, "Alice"]}`.
 
 ## License
 
