@@ -39,9 +39,29 @@ REPLIKIT_PORT=9000 \
 replikit
 ```
 
-## Example
+## Examples
 
-TODO.
+Below is a minimal example of a Python client using `aiohttp` to consume Server-Sent Events (SSE) from RepliKit:
+
+```python
+import asyncio
+import aiohttp
+
+async def main():
+    async with aiohttp.ClientSession() as session:
+        async with session.get("http://localhost:8000/events") as resp:
+            async for line in resp.content:
+                # SSE lines are UTF‑8 encoded
+                text = line.decode().strip()
+                if text.startswith("data:"):
+                    payload = text[5:].strip()
+                    print("Received event:", payload)
+
+asyncio.run(main())
+```
+
+The server exposes the events at the `/events` endpoint. The client connects, reads the stream line by line, and prints each event payload.
+
 
 ## FAQ
 
