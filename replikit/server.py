@@ -5,9 +5,13 @@ has something importable and testable from the first commit -- the build
 loop fills in the actual server logic one task at a time.
 """
 
+import asyncio
+from typing import Any
+
 from aiohttp import web
 
 from .api import BROKER_KEY, sse_events
+from .config import load_config
 from .events import EventBroker
 from .replication import ReplicationManager
 
@@ -38,8 +42,15 @@ async def start_server(
     return app
 
 
-def main() -> None:
-    raise NotImplementedError("TODO: wire up the MCP server and register its tools")
+def main(config: dict[str, Any] | None = None) -> None:
+    """Build the replication manager, broker and app, then serve until interrupted."""
+    cfg = config if config is not None else load_config()
+    broker = EventBroker()
+    replication = ReplicationManager(cfg["pg_dsn"])
+    app = asyncio.run(
+        start_server(cfg["host"], cfg["port"], broker=broker, replication=replication)
+    )
+    web.run_app(app, host=cfg["host"], port=cfg["port"])
 
 
 if __name__ == "__main__":
