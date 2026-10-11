@@ -10,6 +10,7 @@ CREATE_SLOT_SQL = (
 )
 MAX_RETRIES = 3
 RETRY_BASE_DELAY = 0.5
+DEFAULT_SLOT_NAME = "replikit_slot"
 
 
 class ReplicationManager:
@@ -29,10 +30,17 @@ class ReplicationManager:
                 await asyncio.sleep(RETRY_BASE_DELAY * 2**attempt)
         raise RuntimeError("unreachable: retry loop always returns or raises")
 
-    async def start_slot(self, slot_name: str) -> None:
-        """Create the logical replication slot if it does not already exist."""
+    async def start_slot(self, slot_name: str = DEFAULT_SLOT_NAME) -> None:
+        """Create the logical replication slot if it does not already exist.
+
+        Idempotent: the SQL skips creation when the slot is there, and a
+        concurrent creator racing us raises DuplicateObjectError, which is
+        the same "already exists" outcome and is ignored.
+        """
         conn = await self._connect()
         try:
             await conn.execute(CREATE_SLOT_SQL, slot_name)
+        except asyncpg.exceptions.DuplicateObjectError:
+            pass
         finally:
             await conn.close()
