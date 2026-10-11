@@ -22,3 +22,19 @@ def test_load_config_with_env(monkeypatch):
     assert config["pg_dsn"] == "postgresql://user:pass@host:5432/db"
     assert config["host"] == "127.0.0.1"
     assert config["port"] == 9000
+
+
+def test_load_config_file_values_fill_unset_env(monkeypatch):
+    for var in ("REPLIKIT_PG_DSN", "REPLIKIT_HOST", "REPLIKIT_PORT"):
+        monkeypatch.delenv(var, raising=False)
+
+    config = load_config({"host": "10.0.0.1", "port": 7000})
+    assert config["host"] == "10.0.0.1"
+    assert config["port"] == 7000
+
+
+def test_load_config_env_overrides_file_values(monkeypatch):
+    monkeypatch.setenv("REPLIKIT_PORT", "9000")
+
+    config = load_config({"port": 7000})
+    assert config["port"] == 9000
