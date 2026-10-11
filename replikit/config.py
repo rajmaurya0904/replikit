@@ -7,7 +7,11 @@ DEFAULTS: dict[str, Any] = {
     "host": "0.0.0.0",
     "port": 8000,
 }
-ENV_VARS = {"pg_dsn": "REPLIKIT_PG_DSN", "host": "REPLIKIT_HOST", "port": "REPLIKIT_PORT"}
+ENV_VARS = {
+    "pg_dsn": "REPLIKIT_PG_DSN",
+    "host": "REPLIKIT_HOST",
+    "port": "REPLIKIT_PORT",
+}
 
 
 def load_config(file_values: Mapping[str, Any] | None = None) -> dict[str, Any]:
