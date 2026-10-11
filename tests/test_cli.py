@@ -8,7 +8,7 @@ import replikit.cli
 def test_main_calls_server_main(capsys):
     """CLI main should call server main and exit cleanly."""
     with patch('replikit.server.main') as mock_server_main:
-        replikit.cli.main()
+        replikit.cli.main([])
         mock_server_main.assert_called_once()
     # Ensure no unexpected output
     captured = capsys.readouterr()
