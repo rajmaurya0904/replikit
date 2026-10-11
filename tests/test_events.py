@@ -84,6 +84,48 @@ async def test_subscription_context_manager_unregisters_on_exit():
     assert broker.subscriber_count == 0
 
 
+async def test_full_queue_drops_the_oldest_event():
+    broker = EventBroker(max_queue_size=2)
+    stream = broker.subscribe()
+
+    for i in range(4):
+        await broker.publish({"seq": i})
+
+    received = [await asyncio.wait_for(stream.__anext__(), timeout=1) for _ in range(2)]
+    await stream.aclose()
+
+    # Buffer holds 2: the two newest survive, seq 0 and 1 were dropped.
+    assert received == [{"seq": 2}, {"seq": 3}]
+    assert broker.dropped_events == 2
+
+
+async def test_slow_subscriber_does_not_grow_memory_without_limit():
+    broker = EventBroker(max_queue_size=3)
+    slow = broker.subscribe()
+    fast = broker.subscribe()
+
+    for i in range(50):
+        await broker.publish({"seq": i})
+        # The fast subscriber keeps draining; the slow one never reads.
+        await asyncio.wait_for(fast.__anext__(), timeout=1)
+
+    assert slow.pending == 3
+    assert fast.pending == 0
+    assert broker.dropped_events == 47
+
+    await slow.aclose()
+    await fast.aclose()
+
+
+async def test_rejects_a_non_positive_queue_size():
+    for size in (0, -1):
+        try:
+            EventBroker(max_queue_size=size)
+        except ValueError:
+            continue
+        raise AssertionError(f"max_queue_size={size} should be rejected")
+
+
 async def test_an_idle_subscriber_does_not_block_delivery_to_others():
     broker = EventBroker()
     idle = broker.subscribe()
