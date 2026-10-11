@@ -7,6 +7,9 @@ loop fills in the actual server logic one task at a time.
 
 from aiohttp import web
 
+from .api import BROKER_KEY, sse_events
+from .events import EventBroker
+
 HOST_KEY = web.AppKey("host", str)
 PORT_KEY = web.AppKey("port", int)
 
@@ -15,12 +18,16 @@ async def _status(request: web.Request) -> web.Response:
     return web.json_response({"status": "ok"})
 
 
-async def start_server(host: str, port: int) -> web.Application:
-    """Build the aiohttp application with the status route registered."""
+async def start_server(
+    host: str, port: int, broker: EventBroker | None = None
+) -> web.Application:
+    """Build the aiohttp application with the status and SSE routes registered."""
     app = web.Application()
     app[HOST_KEY] = host
     app[PORT_KEY] = port
+    app[BROKER_KEY] = broker if broker is not None else EventBroker()
     app.router.add_get("/", _status)
+    app.router.add_get("/events", sse_events)
     return app
 
 
